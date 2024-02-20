@@ -904,3 +904,9 @@ with self.input_dependent_hooks_context(input=input):
 You can then use those hooks like you would any other hook.
 
 In practice, you don't need to worry about these details. `run_with_hooks` and `run_with_cache` will automatically call `input_dependent_hooks_context` for you, which covers most of the use cases. From the users end, it just looks like there is a hook for every `hook_h.{position}`, as desired.
+
+Sources:
+- Softplus image from [pytorch docs](https://pytorch.org/docs/stable/generated/torch.nn.Softplus.html)
+- Some of this code is modified from [mamba-minimal](https://github.com/johnma2006/mamba-minimal)
+- Official mamba implementation at [https://github.com/state-spaces/mamba](https://github.com/state-spaces/mamba)
+- [Transformer Lens](https://github.com/neelnanda-io/TransformerLens)
