@@ -445,7 +445,7 @@ cfg = { # your config from a model using https://github.com/state-spaces/mamba
 # it also does some moving around to make it look like HookedTransformer
 
 hooked_mamba_cfg = hooked_mamba.convert_original_config_to_hooked_mamba_config(cfg, device=device)
-hooked_mamba_state_dict = hooked_mamba.convert_original_state_dict_to_hooked_format(state_dict)
+hooked_mamba_state_dict = hooked_mamba.convert_original_state_dict_to_hooked_state_dict(state_dict)
 
 # Note: tokenizer is optional, it's only used if you pass in a string
 tokenizer = AutoTokenizer.from_pretrained('EleutherAI/gpt-neox-20b')
@@ -484,7 +484,7 @@ model = hooked_mamba.HookedMamba(cfg=cfg, device='cuda', initialize_params=True)
 ```python
 # model is a HookedMamba
 cfg_dict = hooked_mamba.convert_hooked_mamba_config_to_original_config(hooked_mamba_cfg=model.cfg)
-state_dict = hooked_mamba.convert_hooked_state_dict_to_original_format(cfg=model.cfg, state_dict=model.state_dict())
+state_dict = hooked_mamba.convert_hooked_state_dict_to_original_state_dict(cfg=model.cfg, state_dict=model.state_dict())
 ```
 
 # Activation Patching 
