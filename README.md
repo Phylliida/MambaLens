@@ -479,7 +479,7 @@ cfg = MambaCfg(
 model = mamba_lens.HookedMamba(cfg=cfg, device='cuda', initialize_params=True)
 ```
 
-## Port HookedMamba to other libraries using the original format:
+## Port HookedMamba to other libraries using the original format
 
 ```python
 # model is a HookedMamba
