@@ -13,7 +13,7 @@ pip install git+https://github.com/Phylliida/HookedMamba.git
 Just like transformer lens! It has all the same functionality as HookedTransformer. For example:
 
 ```python
-import hooked_mamba
+from hooked_mamba import HookedMamba
 model = HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
 
 # Run the model and get logits and activations
