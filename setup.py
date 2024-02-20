@@ -1,14 +1,14 @@
 import setuptools
 
 setuptools.setup(
-    name = "hooked_mamba",
+    name = "mamba_lens",
     version = "0.0.1",
     author = "Phylliida",
     author_email = "phylliidadev@gmail.com",
     description = "TransformerLens port for Mamba",
-    url = "https://github.com/Phylliida/HookedMamba.git",
+    url = "https://github.com/Phylliida/MambaLens.git",
     project_urls = {
-        "Bug Tracker": "https://github.com/Phylliida/HookedMamba/issues",
+        "Bug Tracker": "https://github.com/Phylliida/MambaLens/issues",
     },
     classifiers = [
         "Programming Language :: Python :: 3",
