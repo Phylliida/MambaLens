@@ -19,7 +19,7 @@ See the [Optimizations](https://github.com/Phylliida/HookedMamba/blob/main/READM
 Just like transformer lens! It has all the same functionality as HookedTransformer. For example:
 
 ```python
-from hooked_mamba import HookedMamba
+from mamba_lens import HookedMamba
 model = HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
 
 # Run the model and get logits and activations
@@ -83,7 +83,7 @@ class RMSNorm(nn.Module):
 </details>
 
 
-It may be useful to just look at hooked_mamba.py. Still, here's each hook with a breif summary, in the order they are encountered:
+It may be useful to just look at HookedMamba.py. Still, here's each hook with a breif summary, in the order they are encountered:
 
 ## `hook_embed : [B,L,D]`
 
@@ -406,7 +406,7 @@ logits    = self.hook_logits(logits) # [B,L,V]
 ## From a pretrained model on huggingface:
 
 ```python
-from hooked_mamba import HookedMamba
+from mamba_lens import HookedMamba
 
 tokenizer = AutoTokenizer.from_pretrained('EleutherAI/gpt-neox-20b')
 model = HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda', tokenizer=tokenizer)
@@ -415,7 +415,7 @@ model = HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda', to
 ## From a config and state dict:
 
 ```python
-import hooked_mamba
+import mamba_lens
 
 state_dict = old_model.state_dict() # your state dict from a model using https://github.com/state-spaces/mamba
 cfg = { # your config from a model using https://github.com/state-spaces/mamba
@@ -444,13 +444,13 @@ cfg = { # your config from a model using https://github.com/state-spaces/mamba
 #            norm_f  -> norm
 # it also does some moving around to make it look like HookedTransformer
 
-hooked_mamba_cfg = hooked_mamba.convert_original_config_to_hooked_mamba_config(cfg, device=device)
-hooked_mamba_state_dict = hooked_mamba.convert_original_state_dict_to_hooked_state_dict(state_dict)
+hooked_mamba_cfg = mamba_lens.convert_original_config_to_hooked_mamba_config(cfg, device=device)
+hooked_mamba_state_dict = mamba_lens.convert_original_state_dict_to_hooked_state_dict(state_dict)
 
 # Note: tokenizer is optional, it's only used if you pass in a string
 tokenizer = AutoTokenizer.from_pretrained('EleutherAI/gpt-neox-20b')
 
-model = hooked_mamba.HookedMamba(cfg=hooked_mamba_cfg, device='cuda', tokenizer=tokenizer)
+model = mamba_lens.HookedMamba(cfg=hooked_mamba_cfg, device='cuda', tokenizer=tokenizer)
 model.load_state_dict(hooked_mamba_state_dict)
 ```
 
@@ -476,15 +476,15 @@ cfg = MambaCfg(
     )
 )
 
-model = hooked_mamba.HookedMamba(cfg=cfg, device='cuda', initialize_params=True)
+model = mamba_lens.HookedMamba(cfg=cfg, device='cuda', initialize_params=True)
 ```
 
 ## Port HookedMamba to other libraries using the original format:
 
 ```python
 # model is a HookedMamba
-cfg_dict = hooked_mamba.convert_hooked_mamba_config_to_original_config(hooked_mamba_cfg=model.cfg)
-state_dict = hooked_mamba.convert_hooked_state_dict_to_original_state_dict(cfg=model.cfg, state_dict=model.state_dict())
+cfg_dict = mamba_lens.convert_hooked_mamba_config_to_original_config(hooked_mamba_cfg=model.cfg)
+state_dict = mamba_lens.convert_hooked_state_dict_to_original_state_dict(cfg=model.cfg, state_dict=model.state_dict())
 ```
 
 # Activation Patching 
@@ -515,8 +515,8 @@ from transformer_lens.hook_points import HookPoint
 import torch
 import plotly.express as px
 
-import hooked_mamba
-model = hooked_mamba.HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
+import mamba_lens
+model = mamba_lens.HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
 
 prompt_uncorrupted = 'Lately, Emma and Shelby had fun at school. Shelby gave an apple to'
 prompt_corrupted = 'Lately, Emma and Shelby had fun at school. Emma gave an apple to'
@@ -634,8 +634,8 @@ from transformer_lens.hook_points import HookPoint
 import torch
 import plotly.express as px
 
-import hooked_mamba
-model = hooked_mamba.HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
+import mamba_lens
+model = mamba_lens.HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
 
 prompt_uncorrupted = 'Lately, Emma and Shelby had fun at school. Shelby gave an apple to'
 prompt_corrupted = 'Lately, Emma and Shelby had fun at school. Emma gave an apple to'
@@ -818,7 +818,7 @@ cd mamba
 pip install -e .
 ```
 
-I recommend looking at hooked_mamba.py if you are interested in how this is called.
+I recommend looking at mamba_lens/HookedMamba.py if you are interested in how this is called.
 
 Using `fast_ssm=True` will disable a few hooks:
 
