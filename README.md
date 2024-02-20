@@ -1,19 +1,18 @@
 # Hooked Mamba
 
-A port of [transformer lens](https://arxiv.org/abs/2312.00752) for [Mamba](https://arxiv.org/abs/2312.00752).
+A port of [transformer lens](https://github.com/neelnanda-io/TransformerLens) for [Mamba](https://arxiv.org/abs/2312.00752).
 
 # How do I use it?
 
-Just like transformer lens! 
+Just like transformer lens! It has all the same functionality as HookedTransformer. For example:
 
-```
+```python
 import hooked_mamba
 model = HookedMamba.from_pretrained("state-spaces/mamba-370m", device='cuda')
 
 # Run the model and get logits and activations
 logits, activations = model.run_with_cache("Hello World")
 ```
-
 
 # What hooks are available?
 
