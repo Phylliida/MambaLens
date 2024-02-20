@@ -10,8 +10,9 @@ pip install git+https://github.com/Phylliida/HookedMamba.git
 
 This will also install the required dependencies: `transformer-lens torch einops jaxtyping`
 
-If you want to use the cuda kernels, see the 
+If you want to use the cuda kernels (not required, just nice for faster inference), you will need further installation.
 
+See the [Optimizations](https://github.com/Phylliida/HookedMamba/blob/main/README.md#optimizations) section below.
 
 # How do I use it?
 
