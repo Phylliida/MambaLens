@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name = "mamba_lens",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "Phylliida",
     author_email = "phylliidadev@gmail.com",
     description = "TransformerLens port for Mamba",
