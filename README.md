@@ -1,4 +1,4 @@
-# Hooked Mamba
+# Mamba Lens
 
 A port of [transformer lens](https://github.com/neelnanda-io/TransformerLens) for [Mamba](https://arxiv.org/abs/2312.00752).
 
