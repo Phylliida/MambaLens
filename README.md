@@ -5,7 +5,7 @@ A port of [transformer lens](https://github.com/neelnanda-io/TransformerLens) fo
 # Install
 
 ```
-pip install git+https://github.com/Phylliida/HookedMamba.git
+pip install git+https://github.com/Phylliida/MambaLens.git
 ```
 
 This will also install the required dependencies: `transformer-lens torch einops jaxtyping`
