@@ -21,7 +21,7 @@ import itertools
 from transformers.utils import WEIGHTS_NAME, CONFIG_NAME
 from transformers.utils.hub import cached_file
 
-from input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
+from hooked_mamba.input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
 from transformer_lens.HookedTransformer import HookedTransformer, Loss, Output
 from transformer_lens.hook_points import HookPoint
 from transformers import AutoTokenizer
