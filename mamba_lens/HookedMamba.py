@@ -26,7 +26,7 @@ from transformer_lens.hook_points import HookPoint
 from transformers import AutoTokenizer
 from transformer_lens.utils import USE_DEFAULT_VALUE
 
-from input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
+from .input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
 
 MAMBA_TOKENIZER = 'EleutherAI/gpt-neox-20b'
 
