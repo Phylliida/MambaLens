@@ -411,6 +411,7 @@ class HookedMamba(HookedTransformer, InputDependentHookedRootModule):
         start_at_layer: Optional[int] = None,
         tokens: Optional[Int[torch.Tensor, "B L"]] = None,
         stop_at_layer: Optional[int] = None,
+        only_use_these_layers: Optional[List[int]] = None,
         fast_conv: Optional[bool] = False,
         fast_ssm: Optional[bool] = False,
         warn_disabled_hooks: Optional[bool] = True,
@@ -463,6 +464,8 @@ class HookedMamba(HookedTransformer, InputDependentHookedRootModule):
                 negative indexing. Useful for analysis of intermediate layers, eg finding neuron
                 activations in layer 3 of a 24 layer model. Defaults to None (run the full model).
                 If not None, we return the last residual stream computed.
+            only_use_these_layers Optional[List[Int]]: If not none, will process the layers provided only,
+                in the given order
             fast_conv: Optional[bool]: If False, uses unoptimized pytorch code for the conv1d. If true,
                 uses the custom cuda kernel from causal_conv1d (from https://github.com/Dao-AILab/causal-conv1d)
                 must be installed seperately by using `pip install causal-conv1d>=1.1.0`
@@ -507,9 +510,12 @@ class HookedMamba(HookedTransformer, InputDependentHookedRootModule):
         else:
             stopping = True
         
-        for layer in self.blocks[start_at_layer:stop_at_layer]:
+        if only_use_these_layers is None:
+           only_use_these_layers = range(start_at_layer, stop_at_layer) 
+
+        for layer_i in only_use_these_layers:
             # [B,L,D]         [B,L,D]
-            resid     = layer(resid, fast_conv=fast_conv, fast_ssm=fast_ssm, warn_disabled_hooks=warn_disabled_hooks)
+            resid     = self.blocks[layer_i](resid, fast_conv=fast_conv, fast_ssm=fast_ssm, warn_disabled_hooks=warn_disabled_hooks)
         
         # we stop early, just return the resid
         if stopping:
