@@ -26,7 +26,7 @@ from transformer_lens.hook_points import HookPoint
 from transformers import AutoTokenizer
 from transformer_lens.utils import USE_DEFAULT_VALUE
 
-from hooked_mamba.input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
+from input_dependent_hooks import InputDependentHookPoint, InputDependentHookedRootModule
 
 MAMBA_TOKENIZER = 'EleutherAI/gpt-neox-20b'
 
@@ -57,12 +57,12 @@ def get_converted_model_from_hf(pretrained_model_name, device='cuda'):
     
     state_dict = load_state_dict_hf(pretrained_model_name, device=device)
     
-    converted_state_dict = convert_original_state_dict_to_hooked_format(cfg, state_dict=state_dict)
+    converted_state_dict = convert_original_state_dict_to_hooked_state_dict(cfg, state_dict=state_dict)
         
     return cfg, converted_state_dict
 
 
-def convert_original_state_dict_to_hooked_format(cfg, state_dict):
+def convert_original_state_dict_to_hooked_state_dict(cfg, state_dict):
     """
     Convert the original mamba state dict format into the hooked state dict format
     This format is to make interp nicer/to make things look more like HookedTransformer
@@ -106,7 +106,7 @@ def convert_original_state_dict_to_hooked_format(cfg, state_dict):
     return new_state_dict
 
 
-def convert_hooked_state_dict_to_original_format(cfg, state_dict):
+def convert_hooked_state_dict_to_original_state_dict(cfg, state_dict):
     """
     Convert the HookedMamba state dict format back to the original 
     format the pretrained models are stored in
@@ -1063,8 +1063,8 @@ def test_state_dict_convert(device='cuda'):
     our_logits = our_model.forward(test_inputs)
     
     for i in range(10):
-        original = convert_hooked_state_dict_to_original_format(cfg, converted_state_dict)
-        converted = convert_original_state_dict_to_hooked_format(cfg, original)
+        original = convert_hooked_state_dict_to_original_state_dict(cfg, converted_state_dict)
+        converted = convert_original_state_dict_to_hooked_state_dict(cfg, original)
     our_model_again = HookedMamba(cfg)
     our_model_again.load_state_dict(converted)
     our_model_again = our_model_again.to(cfg.device)
