@@ -826,3 +826,69 @@ This is `delta_2` after applying softplus.
 
 Output of the ssm (before adding $x*D$)
 
+
+
+# Notes on implementation (what's a InputDependentHookPoint?)
+
+The one tricky part of implementing `HookedMamba` was 
+
+### `blocks.{layer}.hook_h.{position} : [B,E,N]`
+
+The hidden state of the ssm after processing token at position {position}
+
+Because there is a seperate hook for each position, we need a variable number of hooks depending on the input. To accomodate this, HookedMamba inherits from `InputDependentHookedRootModule` which is just like `HookedRootModule` except it has support for some of the hooks being `InputDependentHookPoint` instead of `HookPoint`.
+
+Here's basic example usage of `InputDependentHookPoint`:
+
+```python
+def make_postfix(l):
+    return f".{l}"
+
+def make_input_dependent_postfixes(input):
+    Batch, L = input.size()
+    for l in range(L):
+        postfix = make_postfix(l=l)
+        yield postfix
+
+# In a class that inherits from InputDependentHookedRootModule:
+
+    # In __init__, before calling self.setup()
+    self.hook_h = InputDependentHookPoint(make_input_dependent_postfixes=make_input_dependent_postfixes)
+
+    # In forward:
+    h = torch.zeros([batch, internal_dim], device=self.cfg.device)
+    for l in range(seq_len):
+        # some internal rnn logic
+        h        =    update_hidden_state(h)
+        
+        # call the hook
+        postfix = make_postfix(l=l)
+        h        = self.hook_h(h, postfix=postfix)
+```
+
+Note `make_postfix` and `make_input_dependent_postfixes`
+
+Here's the docs for `make_input_dependent_postfixes`:
+```python
+"""
+When provided a parameter called
+"input", this should return all postfixes needed for that input
+For example, if this is being used as an RNN hidden state, and 
+input is of size [batch, 5] make_input_dependent_postfixes could return
+[".0", ".1", ".2", ".3", ".4"]
+"""
+```
+
+Then when we want to call forward, we do:
+
+```python
+input = ...
+with self.input_dependent_hooks_context(input=input):
+  result = model.forward(input)
+```
+
+`input_dependent_hooks_context` will create a hook for every prefix returned by `make_input_dependent_postfixes`.
+
+You can then use those hooks like you would any other hook.
+
+In practice, you don't need to worry about these details. `run_with_hooks` and `run_with_cache` will automatically call `input_dependent_hooks_context` for you, which covers most of the use cases. From the users end, it just looks like there is a hook for every `hook_h.{position}`, as desired.
