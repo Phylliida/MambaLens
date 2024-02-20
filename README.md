@@ -2,6 +2,12 @@
 
 A port of [transformer lens](https://github.com/neelnanda-io/TransformerLens) for [Mamba](https://arxiv.org/abs/2312.00752).
 
+# Install
+
+```
+pip install git+https://github.com/Phylliida/HookedMamba.git
+```
+
 # How do I use it?
 
 Just like transformer lens! It has all the same functionality as HookedTransformer. For example:
