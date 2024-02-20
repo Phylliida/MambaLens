@@ -8,6 +8,11 @@ A port of [transformer lens](https://github.com/neelnanda-io/TransformerLens) fo
 pip install git+https://github.com/Phylliida/HookedMamba.git
 ```
 
+This will also install the required dependencies: `transformer-lens torch einops jaxtyping`
+
+If you want to use the cuda kernels, see the 
+
+
 # How do I use it?
 
 Just like transformer lens! It has all the same functionality as HookedTransformer. For example:
@@ -729,7 +734,7 @@ Which gives us
 
 ![Patching layer inputs](https://github.com/Phylliida/HookedMamba/blob/main/media/resid_pre%20patching.png?raw=true)
 
-# Optimizations:
+# Optimizations
 
 If the above is too slow, you can pass in
 
