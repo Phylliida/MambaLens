@@ -613,11 +613,11 @@ Because there is a single hook called for all positions, we now need to only int
 ```python
 # 'blocks.{layer}.resid_pre' is the input to layer {layer}
 def resid_pre_patching_hook(
-    resid_pre: Float[torch.Tensor, "B L E"],
+    resid_pre: Float[torch.Tensor, "B L D"],
     hook: HookPoint,
     position: int,
     layer: int
-) -> Float[torch.Tensor, "B L E"]:
+) -> Float[torch.Tensor, "B L D"]:
     # only intervene on the specific pos
     corrupted_resid_pre = corrupted_activations[hook.name]
     resid_pre[:, position, :] = corrupted_resid_pre[:, position, :]
@@ -683,11 +683,11 @@ for index, (corrupted_token, uncorrupted_token) in enumerate(zip(corrupted_str_t
 
 # 'blocks.{layer}.resid_pre' is the input to layer {layer}
 def resid_pre_patching_hook(
-    resid_pre: Float[torch.Tensor, "B L E"],
+    resid_pre: Float[torch.Tensor, "B L D"],
     hook: HookPoint,
     position: int,
     layer: int
-) -> Float[torch.Tensor, "B L E"]:
+) -> Float[torch.Tensor, "B L D"]:
     # only intervene on the specific pos
     corrupted_resid_pre = corrupted_activations[hook.name]
     resid_pre[:, position, :] = corrupted_resid_pre[:, position, :]
