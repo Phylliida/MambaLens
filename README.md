@@ -838,7 +838,13 @@ This is `delta_2` after applying softplus.
 
 Output of the ssm (before adding $x*D$)
 
+### `blocks.{layer}.hook_h_start : [B,E,N]`
 
+The initial hidden state (always initialized to zero vector)
+
+### `blocks.{layer}.hook_h.{position} : [B,E,N]`
+
+The hidden state of the ssm after processing token at position {position}
 
 # Notes on implementation (what's a InputDependentHookPoint?)
 
