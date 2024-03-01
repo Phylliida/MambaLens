@@ -28,7 +28,7 @@ class InputDependentHookPoint(HookPoint):
         super().__init__()
         self.hooks = {}
         self.make_input_dependent_postfixes = make_input_dependent_postfixes
-    
+
     def add_input_dependent_hooks(self, input):
         """
         Adds child hooks according to the provided input
@@ -86,6 +86,13 @@ class InputDependentHookPoint(HookPoint):
             return input_dependent_hook(value)
         else: # not setup, either forward was called by itself or we are not using this hook
             return value
+
+    def remove_hooks(self, dir="fwd", including_permanent=False, level=None) -> None:
+        '''
+        Removes hooks on all of the children hooks of this input dependent hook
+        '''
+        for child_hook in self.hooks.values():
+            child_hook.remove_hooks(dir=dir, including_permanent=including_permanent, level=level)
 
 class InputDependentHookedRootModule(HookedRootModule):
     '''
@@ -152,7 +159,10 @@ class InputDependentHookedRootModule(HookedRootModule):
             return super().hook_points()
         # we need to also include the input_dependent ones
         else:
-            return list(super().hook_points()) + [x[1] for x in self.input_dependent_hooks()]
+            input_dependent_hook_children = []
+            for input_dependent_hook_name, input_dependent_hook in self.input_dependent_hooks():
+                input_dependent_hook_children += list(input_dependent_hook.hooks.values())
+            return list(super().hook_points()) + input_dependent_hook_children
         
     def run_with_hooks (
             self,

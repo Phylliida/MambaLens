@@ -341,6 +341,9 @@ class RMSNorm(nn.Module):
 def make_postfix(l):
     return f".{l}"
 
+def hook_has_hooks(hook):
+    return len(hook.fwd_hooks) > 0 or len(hook.bwd_hooks)
+
 class HookedMamba(HookedTransformer, InputDependentHookedRootModule):
     def __init__(self,
                  cfg: MambaCfg,
@@ -583,6 +586,7 @@ class HookedMambaBlock(nn.Module):
         
         
         self.hook_resid_pre = HookPoint() # [B,L,D]
+        self.hook_layer_input = HookPoint() # [B,L,D]
         
         ## Process inputs
         self.norm      = RMSNorm(D, device=device)
@@ -721,9 +725,16 @@ class HookedMambaBlock(nn.Module):
         
         ###### Process inputs ######
         resid      = self.hook_resid_pre(resid) # [B,L,D]
+
+        resid_input = resid
+        # this hook is necessary if we want to override on only this layer's inputs
+        if hook_has_hooks(self.hook_layer_input):
+            # this clone prevents modifying layer input from modifying the residual stream
+            resid_input = resid.clone() # clones are expensive, only do it if we need to
+        resid_input = self.hook_layer_input(resid_input) # [B,L,D]
         
         # [B,L,D]             [B,L,D]
-        resid_norm = self.norm(  resid  )
+        resid_norm = self.norm(  resid_input  )
         resid_norm = self.hook_normalized_input(resid_norm) # [B,L,E]
         
         # [B,L,E]          [D->E]     [B,L,D]
@@ -740,7 +751,7 @@ class HookedMambaBlock(nn.Module):
         if fast_conv:
             if warn_disabled_hooks:
                 for hook in [self.hook_conv]:
-                    if len(hook.fwd_hooks) > 0 or len(hook.bwd_hooks) > 0:
+                    if hook_has_hooks(hook):
                         print(f"warning: hook {hook.name} will not be called because fast_conv=True, pass warn_disabled_hooks=True to disable this warning")
 
             from causal_conv1d import causal_conv1d_fn
@@ -816,7 +827,7 @@ class HookedMambaBlock(nn.Module):
 
             if warn_disabled_hooks:
                 for hook in inner_loop_hooks:
-                    if len(hook.fwd_hooks) > 0 or len(hook.bwd_hooks) > 0:
+                    if hook_has_hooks(hook):
                         print(f"warning: hook {hook.name} will not be called because fast_ssm=True, pass warn_disabled_hooks=True to disable this warning")
 
             # the cuda kernel is picky about shapes, rearrange things to make it happy
