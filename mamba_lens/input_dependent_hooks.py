@@ -7,6 +7,67 @@ from contextlib import contextmanager
 from transformer_lens.HookedTransformer import HookedRootModule
 from transformer_lens.hook_points import HookPoint, NamesFilter
 
+def hook_was_added_by_hookpoint(hook) -> bool:
+    '''
+    Internal function used for removing internal pytorch hooks directly,
+    this tells us if the internal hook was added by a hook point
+    This is important as pytorch uses some hook points in internal stuff
+    and we don't want to remove those
+    '''
+    return "HookPoint." in str(repr(hook))
+
+def clean_ghost_hooks_from_hook_point(dir : str, hook_point : HookPoint):
+    '''
+    This function will manually remove any "ghost" hooks from the pytorch module directly
+    (these can occur and stick around if you interrupted code after the time the hook point was added
+    but before the handle was added to the list)
+    '''
+    if dir in ['fwd', 'both']:
+        for k, v in list(hook_point._forward_hooks.items()):
+            if hook_was_added_by_hookpoint(v):
+                print("leftover ghost hook", hook_point.name, k, v.__name__, "removing")
+                del hook_point._forward_hooks[k]
+            
+        for k, v in list(hook_point._forward_pre_hooks.items()):
+            if hook_was_added_by_hookpoint(v):
+                print("leftover ghost hook", hook_point.name, k, v.__name__, "removing")
+                del hook_point._forward_pre_hooks[k]
+    elif dir in ['bwd', 'both']:
+        for k, v in list(hook_point._backward_hooks.items()):
+            if hook_was_added_by_hookpoint(v):
+                print("leftover ghost hook", hook_point.name, k, v.__name__, "removing")
+                del hook_point._backward_hooks[k]
+
+def clean_hooks_from_hook_point(dir : str, hook_point : HookPoint):
+    '''
+    remove all hooks from the hook_point
+    This function will manually remove any remaining hooks from the pytorch module directly
+    (these can stick around if you interrupted code after the time the hook point was added
+    but before the handle was added to the list)
+    '''
+    hook_point.remove_hooks(dir=dir, including_permanent=True, level=None)
+    clean_ghost_hooks_from_hook_point(dir=dir, hook_point=hook_point)
+    
+
+def clean_hooks(model : HookedRootModule):
+    '''
+    remove all hooks from the model
+    sometimes remove_all_hook_fns and reset_hooks won't suffice,
+    because you interrupted the code between the time where the hook is added to python
+    but before python has a chance to add a handle to the list HookPoint holds onto
+
+    This function will manually remove any remaining hooks from the pytorch module directly
+    '''
+    model.reset_hooks(including_permanent=True, level=None)
+    model.remove_all_hook_fns(including_permanent=True, level=None)
+    # extra stuff in case that wasn't everything
+    # this can happen if you interrupt between the time the hook is added to python
+    # but before python has a chance to add the handle to the list HookPoint holds onto
+
+    for name, module in model.named_modules():
+        clean_hooks_from_hook_point(dir='fwd', hook_name=name, hook_point=module)
+        clean_hooks_from_hook_point(dir='bwd', hook_name=name, hook_point=module)
+
 class InputDependentHookPoint(HookPoint):
     '''
     This is a HookPoint that creates child hook points depending on the input size
@@ -91,8 +152,15 @@ class InputDependentHookPoint(HookPoint):
         '''
         Removes hooks on all of the children hooks of this input dependent hook
         '''
+        removing_ghost_hooks = level is None and including_permanent
         for child_hook in self.hooks.values():
             child_hook.remove_hooks(dir=dir, including_permanent=including_permanent, level=level)
+            if removing_ghost_hooks: # helps ensure nothing is left around
+                clean_ghost_hooks_from_hook_point(dir=dir, hook_point=child_hook)
+        # this shouldn't have hooks, but in case it does, remove them too
+        super().remove_hooks(dir=dir, including_permanent=including_permanent, level=level)
+        if removing_ghost_hooks:
+            clean_ghost_hooks_from_hook_point(dir=dir, hook_point=self)
 
 class InputDependentHookedRootModule(HookedRootModule):
     '''
@@ -276,7 +344,7 @@ class InputDependentHookedRootModule(HookedRootModule):
                     **model_kwargs)
                 return res
         
-    def input_dependent_hooks(self) -> Iterator[str, InputDependentHookPoint]:
+    def input_dependent_hooks(self) -> Iterator[Tuple[str, InputDependentHookPoint]]:
         """
         Returns:
             (name, module) Iterator[str, InputDependentHookPoint]: An iterator of tuples of (name, module) where module is an InputDependentHookPoint
@@ -399,5 +467,8 @@ class InputDependentHookedRootModule(HookedRootModule):
                     del self.mod_dict[input_dependent_hook_name]
                 if input_dependent_hook_name in self.hook_dict:
                     del self.hook_dict[input_dependent_hook_name]
+            # this helps ensure any leftover hooks are removed
+            hook.remove_hooks(dir='fwd', including_permanent=True, level=None)
+            hook.remove_hooks(dir='bwd', including_permanent=True, level=None)
             hook.hooks = {}
         self.did_setup_input_dependent_hooks = False
