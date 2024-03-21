@@ -785,8 +785,6 @@ class HookedMambaBlock(nn.Module):
         # [E,N]
         self.A = -torch.exp(self.A_log)
         self.A = self.hook_A(self.A) # [E,N]
-       
-        ys = []
         
         ### Compute the delta, A_bar, B_bar, and C ahead of time,
         ### since none of them depend on h
