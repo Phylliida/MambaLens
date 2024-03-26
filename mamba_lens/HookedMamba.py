@@ -785,12 +785,6 @@ class HookedMambaBlock(nn.Module):
         # [E,N]
         self.A = -torch.exp(self.A_log)
         self.A = self.hook_A(self.A) # [E,N]
-       
-        ys = []
-       
-        # latent state, init to zeros
-        h = torch.zeros([Batch,E,N], device=self.cfg.device)
-        h = self.hook_h_start(h) 
         
         ### Compute the delta, A_bar, B_bar, and C ahead of time,
         ### since none of them depend on h
@@ -895,7 +889,9 @@ class HookedMambaBlock(nn.Module):
             # Now we do the recurrence
             ys = []
             
+            # latent state, init to zeros
             h = torch.zeros([Batch,E,N], device=self.cfg.device)
+            h = self.hook_h_start(h) # [B,E,N]
             for l in range(L):
                 # [B,E,N]   [B,E,N]     [B,E,N]          [B,E,N]          [B,E]
                 h        =    h    *  A_bar[:,l,:,:]  + B_bar[:,l,:,:] * x[:,l].view(Batch, E, 1)
