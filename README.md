@@ -116,12 +116,25 @@ Layer input
 resid = self.hook_resid_pre(resid)
 ```
 
+### `blocks.{layer}.hook_layer_input : [B,L,D]`
+
+Same as `hook_resid_pre`, but `.clone()` is called
+
+This is useful if you want to modify the inputs to this layer without modifying the residual stream
+
+```python
+resid_input = resid
+if hook_has_hooks(self.hook_layer_input):
+    resid_input = resid.clone() # clones are expensive, only do it if we need to
+resid_input = self.hook_layer_input(resid_input) # [B,L,D]
+```
+
 ### `blocks.{layer}.hook_normalized_input : [B,L,D]`
 
 Layer input after normalization (RMSNorm)
 
 ```python
-resid_norm = self.norm(  resid  ) # RMSNorm
+resid_norm = self.norm(  resid_input  ) # RMSNorm
 resid_norm = self.hook_normalized_input(  resid_norm  ) # [B,L,D]
 ```
 
