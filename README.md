@@ -922,7 +922,7 @@ with self.input_dependent_hooks_context(input=input):
 
 You can then use those hooks like you would any other hook.
 
-In practice, you don't need to worry about these details. `run_with_hooks` and `run_with_cache` will automatically call `input_dependent_hooks_context` for you, which covers most of the use cases. From the users end, it just looks like there is a hook for every `hook_h.{position}`, as desired.
+In practice, you don't need to worry about these details. `run_with_hooks` and `run_with_cache` will automatically call `input_dependent_hooks_context` for you, which covers most of the use cases. From the user's end, it just looks like there is a hook for every `hook_h.{position}`, as desired.
 
 Sources:
 - Softplus image from [pytorch docs](https://pytorch.org/docs/stable/generated/torch.nn.Softplus.html)
