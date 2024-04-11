@@ -489,6 +489,7 @@ class HookedMamba(HookedTransformer, InputDependentHookedRootModule):
             # make sure input is ids and not a str
             if type(input) is str:
                 input = self.to_tokens(input=input, prepend_bos=prepend_bos, padding_side=padding_side)
+            tokens = input
         
         input = input.to(self.cfg.device)
         
