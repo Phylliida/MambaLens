@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mamba_lens"
+authors = [
+    {name = "Danielle Ensign", email = "phylliida.dev@gmail.com"},
+]
+description = "TransformerLens port for Mamba"
+readme = "README.md"
+requires-python = ">=3.0"
+license = {text = "MIT License"}
+classifiers = [
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    'transformer-lens',
+    'torch',
+    'einops',
+    'jaxtyping'
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/Phylliida/MambaLens.git"
+Issues = "https://github.com/Phylliida/MambaLens/issues"
