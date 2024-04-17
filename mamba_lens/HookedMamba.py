@@ -291,7 +291,7 @@ class MambaCfg:
     tokenizer_prepends_bos: bool = False
     n_ctx: int = 2048
     device: Union[torch.device,str] = 'cuda'
-    initializer_cfg: MambaInitCfg = MambaInitCfg()
+    initializer_cfg: MambaInitCfg = field(default_factory=MambaInitCfg)
     d_inner: int = -1
 
     def __post_init__(self):
