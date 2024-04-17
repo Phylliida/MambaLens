@@ -23,7 +23,7 @@ def clean_ghost_hooks_from_hook_point(dir : str, hook_point : HookPoint):
     but before the handle was added to the list)
     '''
     if dir in ['fwd', 'both']:
-        for k, v in list(hook_point._forward_hooks.items()):
+        for  k, v in list(hook_point._forward_hooks.items()):
             if hook_was_added_by_hookpoint(v):
                 print("leftover ghost hook", hook_point.name, k, v.__name__, "removing")
                 del hook_point._forward_hooks[k]
@@ -65,8 +65,9 @@ def clean_hooks(model : HookedRootModule):
     # but before python has a chance to add the handle to the list HookPoint holds onto
 
     for name, module in model.named_modules():
-        clean_hooks_from_hook_point(dir='fwd', hook_name=name, hook_point=module)
-        clean_hooks_from_hook_point(dir='bwd', hook_name=name, hook_point=module)
+        if hasattr(module, "remove_hooks"):
+            clean_hooks_from_hook_point(dir='fwd', hook_point=module)
+            clean_hooks_from_hook_point(dir='bwd', hook_point=module)
 
 class InputDependentHookPoint(HookPoint):
     '''
