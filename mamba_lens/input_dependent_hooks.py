@@ -149,6 +149,9 @@ class InputDependentHookPoint(HookPoint):
         else: # not setup, either forward was called by itself or we are not using this hook
             return value
 
+    def forward(self, value, postfix):
+        return self.__call__(value, postfix)
+
     def remove_hooks(self, dir="fwd", including_permanent=False, level=None) -> None:
         '''
         Removes hooks on all of the children hooks of this input dependent hook
