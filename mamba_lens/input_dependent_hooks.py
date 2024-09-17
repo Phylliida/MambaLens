@@ -337,16 +337,20 @@ class InputDependentHookedRootModule(HookedRootModule):
                     fwd_hooks = fwd_hooks + name_fake_hooks
                     
             with self.input_dependent_hooks_context(*model_args, fwd_hooks=fwd_hooks, bwd_hooks=bwd_hooks, setup_all_input_hooks=setup_all_input_hooks, **model_kwargs):
-                res = super().run_with_cache(
-                    *model_args,
-                    names_filter=names_filter,
-                    device=device,
-                    remove_batch_dim=remove_batch_dim,
-                    incl_bwd=incl_bwd,
-                    reset_hooks_end=reset_hooks_end,
-                    clear_contexts=clear_contexts,
-                    **model_kwargs)
-                return res
+                fwd_hooks = [(name, hook) for name, hook in (fwd_hooks if fwd_hooks else []) if hook is not None]
+                bwd_hooks = bwd_hooks if bwd_hooks else []
+                with super().hooks(fwd_hooks, bwd_hooks, reset_hooks_end, clear_contexts) as hooked_model:
+                    res = super().run_with_cache(
+                        *model_args,
+                        names_filter=names_filter,
+                        device=device,
+                        remove_batch_dim=remove_batch_dim,
+                        incl_bwd=incl_bwd,
+                        reset_hooks_end=reset_hooks_end,
+                        clear_contexts=clear_contexts,
+                        **model_kwargs)
+                    return res
+
         
     def input_dependent_hooks(self) -> Iterator[Tuple[str, InputDependentHookPoint]]:
         """
